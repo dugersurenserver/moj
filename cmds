@@ -1,0 +1,173 @@
+
+[uwsgi]
+# Socket and pid file location/permission.
+uwsgi-socket = /home/bd/tmp/dmoj-site.sock
+chmod-socket = 666
+pidfile = /home/bd/tmp/dmoj-site.pid
+
+# You should create an account dedicated to running dmoj under uwsgi.
+#uid = dmoj-uwsgi
+#gid = dmoj-uwsgi
+
+# Paths.
+chdir = /home/bd/site
+pythonpath = /home/bd/site
+virtualenv = /home/bd/venv
+
+# Details regarding DMOJ application.
+protocol = uwsgi
+master = true
+env = DJANGO_SETTINGS_MODULE=dmoj.settings
+module = dmoj.wsgi:application
+optimize = 2
+
+# Scaling settings. Tune as you like.
+memory-report = true
+cheaper-algo = backlog
+cheaper = 3
+cheaper-initial = 5
+cheaper-step = 1
+cheaper-rss-limit-soft = 201326592
+cheaper-rss-limit-hard = 234881024
+workers = 7
+
+
+
+
+
+# sudo nano /etc/supervisor/conf.d/site.conf
+[program:site]
+command=/home/bd/venv/bin/uwsgi --ini uwsgi.ini
+directory=/home/bd/site
+stopsignal=QUIT
+stdout_logfile=/home/bd/tmp/site.stdout.log
+stderr_logfile=/home/bd/tmp/site.stderr.log
+
+
+
+
+# sudo nano /etc/supervisor/conf.d/bridged.conf
+[program:bridged]
+command=/home/bd/venv/bin/python manage.py runbridged
+directory=/home/bd/site
+stopsignal=INT
+# You should create a dedicated user for the bridged to run under.
+user=bd
+group=root
+stdout_logfile=/home/bd/tmp/bridge.stdout.log
+stderr_logfile=/home/bd/tmp/bridge.stderr.log
+
+
+
+
+
+
+# sudo nano /etc/supervisor/conf.d/celery.conf
+[program:celery]
+command=/home/bd/venv/bin/celery -A dmoj_celery worker
+directory=/home/bd/site
+# You should create a dedicated user for celery to run under.
+user=bd
+group=root
+stdout_logfile=/home/bd/tmp/celery.stdout.log
+stderr_logfile=/home/bd/tmp/celery.stderr.log
+
+
+
+
+
+# sudo nano /etc/nginx/sites-available/default
+
+server {
+    listen       80;
+    listen       [::]:80;
+
+    # Change port to 443 and do the nginx ssl stuff if you want it.
+
+    # Change server name to the HTTP hostname you are using.
+    # You may also make this the default server by listening with default_server,
+    # if you disable the default nginx server declared.
+    server_name 127.0.0.1;
+
+    add_header X-UA-Compatible "IE=Edge,chrome=1";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    charset utf-8;
+    try_files $uri @icons;
+    error_page 502 504 /502.html;
+
+    location ~ ^/502\.html$|^/logo\.png$|^/robots\.txt$ {
+        root /home/bd/site;
+    }
+
+    location @icons {
+        root /home/bd/site/resources/icons;
+        error_page 403 = @uwsgi;
+        error_page 404 = @uwsgi;
+    }
+
+    location @uwsgi {
+        uwsgi_read_timeout 600;
+        # Change this path if you did so in uwsgi.ini
+        uwsgi_pass unix:///home/bd/tmp/dmoj-site.sock;
+        include uwsgi_params;
+        uwsgi_param SERVER_SOFTWARE nginx/$nginx_version;
+    }
+
+    location /static {
+        gzip_static on;
+        expires max;
+        #root <django setting STATIC_ROOT, without the final /static>;
+        # Comment out root, and use the following if it doesn't end in /static.
+        alias /home/bd/tmp/static/; 
+    }
+
+    # Uncomment if you are using PDFs and want to serve it faster.
+    # This location name should be set to DMOJ_PDF_PROBLEM_INTERNAL.
+    #location /pdfcache {
+    #    internal;
+    #    root <the value of DMOJ_PDF_PROBLEM_CACHE in local_settings.py>;
+    #    # Default from docs:
+    #    #root /home/dmoj-uwsgi/;
+    #}
+
+    # Uncomment if you are allowing user data downloads and want to serve it faster.
+    # This location name should be set to DMOJ_USER_DATA_INTERNAL.
+    #location /datacache {
+    #    internal;
+    #    root <path to data cache directory, without the final /datacache>;
+    #    # Default from docs:
+    #    #root /home/dmoj-uwsgi/;
+    #}
+
+    # Uncomment these sections if you are using the event server.
+    location /event/ {
+        proxy_pass http://127.0.0.1:15100/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+    }
+
+    location /channels/ {
+        proxy_read_timeout          120;
+        proxy_pass http://127.0.0.1:15102;
+    }
+}
+
+
+
+
+
+
+
+# sudo nano /etc/supervisor/conf.d/wsevent.conf
+[program:wsevent]
+command=/usr/bin/node /home/bd/site/websocket/daemon.js
+environment=NODE_PATH="/home/bd/site/node_modules"
+# Should create a dedicated user.
+user=bd
+group=root
+stdout_logfile=/home/bd/tmp/wsevent.stdout.log
+stderr_logfile=/home/bd/tmp/wsevent.stderr.log
