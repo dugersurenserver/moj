@@ -120,7 +120,7 @@ server {
         expires max;
         #root <django setting STATIC_ROOT, without the final /static>;
         # Comment out root, and use the following if it doesn't end in /static.
-        alias /home/bd/tmp/static/; 
+        alias /home/bd/tmp/statics/; 
     }
 
     # Uncomment if you are using PDFs and want to serve it faster.
@@ -171,3 +171,26 @@ user=bd
 group=root
 stdout_logfile=/home/bd/tmp/wsevent.stdout.log
 stderr_logfile=/home/bd/tmp/wsevent.stderr.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# sudo nano /etc/supervisor/conf.d/judge.conf
+
+[program:judge]
+command=/home/ubuntu/dmojsite/bin/dmoj -c judge.yml localhost
+directory=/home/bd/site/
+stopsignal=QUIT
+stdout_logfile=/tmp/judge.stdout.log
+stderr_logfile=/tmp/judge.stderr.log

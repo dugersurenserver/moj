@@ -1,5 +1,3 @@
-# sudo nano /etc/nginx/sites-available/default
-
 server {
     listen       80;
     listen       [::]:80;
@@ -10,6 +8,8 @@ server {
     # You may also make this the default server by listening with default_server,
     # if you disable the default nginx server declared.
     server_name 127.0.0.1;
+
+    client_max_body_size 10000M;
 
     add_header X-UA-Compatible "IE=Edge,chrome=1";
     add_header X-Content-Type-Options nosniff;
@@ -32,7 +32,7 @@ server {
     location @uwsgi {
         uwsgi_read_timeout 600;
         # Change this path if you did so in uwsgi.ini
-        uwsgi_pass unix:///home/bd/tmp/dmoj-site.sock;
+        uwsgi_pass unix:///tmp/dmoj-site.sock;
         include uwsgi_params;
         uwsgi_param SERVER_SOFTWARE nginx/$nginx_version;
     }
@@ -42,7 +42,7 @@ server {
         expires max;
         #root <django setting STATIC_ROOT, without the final /static>;
         # Comment out root, and use the following if it doesn't end in /static.
-        alias /home/bd/tmp/static/; 
+        alias /tmp/static/; 
     }
 
     # Uncomment if you are using PDFs and want to serve it faster.
@@ -77,3 +77,4 @@ server {
         proxy_pass http://127.0.0.1:15102;
     }
 }
+
