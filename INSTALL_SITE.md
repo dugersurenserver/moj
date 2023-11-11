@@ -239,11 +239,26 @@ netstat -tulnp | grep LISTEN
 
 <ins>Файлын нэрийг солих </ins>
 ```
+sudo apt install rename
+rename -h
+rename --help
+
 rename -v  's/\)\.txt/\.in/' test_input*
 rename -v  's/\)\.txt/\.out/' test_output*
 rename -v  's/(test_input\ \(|test_output\ \()//' *
 
+
+sudo apt install mmv
+mmv -h
+
+mmv 'modulo.in.*' '#1.in'
+mmv 'modulo.out.*' '#1.out'
+
 ```
+
+[Холбогдох сайт](https://manpages.ubuntu.com/manpages/focal/man1/mmv.1.html)
+
+
 [Холбогдох сайт](https://phoenixnap.com/kb/rename-file-linux)
 
 </details>
@@ -295,6 +310,9 @@ server {
 
 
 ```
+sudo cp /home/bd/site/conf/default /etc/nginx/sites-available/default
+
+
 sudo service nginx restart
 sudo service nginx reload
 ```
