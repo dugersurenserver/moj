@@ -319,3 +319,7 @@ sudo service nginx reload
 
 
 </details>
+
+
+
+https://linuxhint.com/set-change-timezone-ubuntu-22-04/
