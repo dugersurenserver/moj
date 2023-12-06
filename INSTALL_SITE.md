@@ -323,3 +323,6 @@ sudo service nginx reload
 
 
 https://linuxhint.com/set-change-timezone-ubuntu-22-04/
+
+
+sudo snap refresh docker --channel=latest/edge
