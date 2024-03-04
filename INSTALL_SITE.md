@@ -258,6 +258,9 @@ mmv 'test_*put (*).txt' '#2.#1'
 
 mmv '*.*.*' '#3.#2'
 
+sudo zip -r case.zip .
+
+
 ```
 
 [Холбогдох сайт](https://manpages.ubuntu.com/manpages/focal/man1/mmv.1.html)
