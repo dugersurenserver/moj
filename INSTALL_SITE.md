@@ -254,6 +254,10 @@ mmv -h
 mmv 'modulo.in.*' '#1.in'
 mmv 'modulo.out.*' '#1.out'
 
+mmv 'test_*put (*).txt' '#2.#1'
+
+mmv '*.*.*' '#3.#2'
+
 ```
 
 [Холбогдох сайт](https://manpages.ubuntu.com/manpages/focal/man1/mmv.1.html)
