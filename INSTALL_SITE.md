@@ -155,6 +155,7 @@ sudo cp /home/bd/site/conf/site.conf /etc/supervisor/conf.d/site.conf
 sudo cp /home/bd/site/conf/bridged.conf /etc/supervisor/conf.d/bridged.conf
 sudo cp /home/bd/site/conf/celery.conf /etc/supervisor/conf.d/celery.conf
 sudo cp /home/bd/site/conf/wsevent.conf /etc/supervisor/conf.d/wsevent.conf
+sudo cp /home/bd/site/conf/judge.conf /etc/supervisor/conf.d/judge.conf
 sudo cp /home/bd/site/conf/default /etc/nginx/sites-available/default
 sudo cp /home/bd/site/conf/judge.yml /mnt/problems/judge.yml
 sudo nano /mnt/problems/judge.yml
